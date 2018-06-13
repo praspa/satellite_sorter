@@ -7,12 +7,14 @@ import sys
 import pprint
 
 parser = argparse.ArgumentParser(description='Parse a sat inv file.')
-parser.add_argument('-f', action='store', dest='input_file', help='The satellite inventory file')
-parser.add_argument('-o', action='store', dest='output_file', help='The output file')
+parser.add_argument('-f', action='store', dest='input_file', help='The satellite system cache file')
+parser.add_argument('-o', action='store', dest='output_file', help='The output satellite system cache file')
+parser.add_argument('-n', action='store', dest='num_hide', help='hide n of the latest check-in host ids')
 
 results = parser.parse_args()
 input_file = results.input_file
 output_file = results.output_file
+num_hide = int(results.num_hide)
 
 def validateInput():
     if not os.path.isfile(input_file):
@@ -51,10 +53,18 @@ def parseFile():
                 beginEntry = False
                 # sort the tmpList based on the second column of the string
                 tmpList.sort(key = lambda x: x.split()[1])
+                # pop off X number of entries off the list per cmd line args
+                reduction = num_hide
+                # only operate on positive reductions
+                if num_hide > 0:
+                    # only pair down the list to the max length of the list
+                    if len(tmpList) < reduction:
+                        reduction = len(tmpList)
+                    tmpList = tmpList[:-reduction]
                 # write off the previous entry block to the global dictionary
                 # print "DEBUG: adding entries_dict\n"
                 entries_dict[host] = tmpList
-                # clear the tmpList
+                # clear the tmpList for the next loop
                 tmpList = []
 
                 # set host the new host we find
