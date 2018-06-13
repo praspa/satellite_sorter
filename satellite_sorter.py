@@ -79,7 +79,7 @@ def parseFile():
             continue
         else:
             continue
-    print "DEBUG: Closing file\n"
+    #print "DEBUG: Closing file\n"
     invh.close()
     return entries_dict
 
@@ -96,11 +96,26 @@ def createReport():
     report.update({ "baseline": total })
     printReport(report)
 
-def createFile():
+def writeOutput(myDict):
+    f = open(output_file, 'w')
+    # write some header stuff
+    f.write('\n')
+    f.write('\n')
+    f.write('** Generating system cache **\n')
+    f.write('\n')
 
+    for host in myDict:
+        f.write(host + ':\n')
+        f.write('System ID   Last Checkin\n')
+        f.write('----------  -----------------\n')
+        # write sorted lines
+        for line in myDict[host]:
+            f.write(line + '\n')
+        # new line between entry blocks
+        f.write('\n')
+    f.close()  # you can omit in most cases as the destructor will call it
 
 # main
 validateInput()
 entries_dict = parseFile()
-pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(entries_dict)
+writeOutput(entries_dict)
